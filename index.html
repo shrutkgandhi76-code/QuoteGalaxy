@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuoteGalaxy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ffd8cb 0%, #ffe4b5 100%);
+      color: #333;
+      transition: background 0.5s, color 0.5s;
+    }
+    header {
+      background: #ff6f61;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    .category-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .category {
+      background: white;
+      padding: 1rem;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .category:hover {
+      transform: scale(1.05);
+      background: #ffe9dc;
+    }
+    .quote-box {
+      background: white;
+      padding: 1.5rem;
+      border-left: 5px solid #ff6f61;
+      border-radius: 10px;
+      margin: 1rem 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .tag {
+      display: inline-block;
+      margin-top: 0.5rem;
+      background: #ffd166;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .actions {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #ff6f61;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background: #e95b50;
+    }
+    .dark-mode {
+      background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+      color: #f0f0f0;
+    }
+    .dark-mode header {
+      background: #111;
+    }
+    .dark-mode .category, .dark-mode .quote-box {
+      background: #3a3a3a;
+      color: #f0f0f0;
+    }
+    .toggle-dark {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-dark" onclick="toggleDarkMode()">
+    <i id="modeIcon" data-lucide="moon"></i>
+  </button>
+  <header>QuoteGalaxy 🌠</header>
+  <div class="container">
+    <div class="category-selector">
+      <div class="category" onclick="showCategory('inspirational')">🌟 Inspirational</div>
+      <div class="category" onclick="showCategory('life')">🌿 Life</div>
+      <div class="category" onclick="showCategory('love')">💕 Love</div>
+      <div class="category" onclick="showCategory('friendship')">🤝 Friendship</div>
+      <div class="category" onclick="showCategory('happiness')">😊 Happiness</div>
+      <div class="category" onclick="showCategory('funny')">😄 Funny</div>
+      <div class="category" onclick="showCategory('sad')">😢 Sad</div>
+      <div class="category" onclick="showCategory('wisdom')">🧠 Wisdom</div>
+      <div class="category" onclick="showCategory('strength')">💪 Strength</div>
+      <div class="category" onclick="showCategory('music')">🎵 Music</div>
+    </div>
+    <div id="quoteContainer"></div>
+    <div class="actions">
+      <button class="btn" onclick="randomQuote()">🎲 Random Quote</button>
+      <button class="btn" onclick="copyQuote()">📋 Copy</button>
+      <button class="btn" onclick="shareQuote()">📤 Share</button>
+    </div>
+    <div style="text-align:center;margin-top:2rem">
+      <h3>Support QuoteGalaxy 💖</h3>
+      <img src="Screenshot_20250709_174427_FamApp.png" alt="UPI QR Code" style="max-width:200px;border-radius:12px" />
+      <p><strong>UPI ID:</strong> 7304959132@fam</p>
+    </div>
+    <div id="disqus_thread" style="margin-top: 4rem;"></div>
+    <script>
+      var disqus_config = function () {
+        this.page.url = window.location.href;
+        this.page.identifier = 'quotegalaxy';
+      };
+      (function() {
+        var d = document, s = d.createElement('script');
+        s.src = 'https://quotegalaxy.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+      })();
+    </script>
+  </div>
+  <script>
+    const quotes = {
+      inspirational: [
+        "The best way to get started is to quit talking and begin doing. – Walt Disney",
+        "Don't let yesterday take up too much of today. – Will Rogers",
+        "It's not whether you get knocked down, it's whether you get up. – Vince Lombardi",
+        "If you are working on something exciting, it will keep you motivated. – Steve Jobs",
+        "The harder you work for something, the greater you’ll feel when you achieve it.",
+        "Dream bigger. Do bigger.",
+        "Don't watch the clock; do what it does. Keep going. – Sam Levenson",
+        "Great things never come from comfort zones.",
+        "Push yourself, because no one else is going to do it for you.",
+        "Success doesn’t just find you. You have to go out and get it.",
+        "The secret of getting ahead is getting started. – Mark Twain",
+        "Believe in yourself and all that you are. – Christian D. Larson",
+        "Your limitation—it’s only your imagination.",
+        "Sometimes later becomes never. Do it now.",
+        "Act as if what you do makes a difference. It does. – William James",
+        "Success is not final, failure is not fatal: It is the courage to continue that counts. – Winston Churchill",
+        "Hardships often prepare ordinary people for an extraordinary destiny. – C.S. Lewis",
+        "The future belongs to those who believe in the beauty of their dreams. – Eleanor Roosevelt",
+        "The only way to do great work is to love what you do. – Steve Jobs",
+        "What you get by achieving your goals is not as important as what you become by achieving your goals. – Zig Ziglar",
+        "Start where you are. Use what you have. Do what you can. – Arthur Ashe",
+        "It always seems impossible until it’s done. – Nelson Mandela",
+        "Everything you’ve ever wanted is on the other side of fear. – George Addair",
+        "Opportunities don't happen. You create them. – Chris Grosser",
+        "Do what you can with all you have, wherever you are. – Theodore Roosevelt"
+      ],
+      life: [
+        "Life is what happens when you're busy making other plans. – John Lennon",
+        "Get busy living or get busy dying. – Stephen King",
+        "You only live once, but if you do it right, once is enough. – Mae West",
+        "Life is short, and it's up to you to make it sweet. – Sarah Louise Delany",
+        "In the middle of difficulty lies opportunity. – Albert Einstein",
+        "Difficult and meaningful will always bring more satisfaction than easy and meaningless.",
+        "Keep smiling, because life is a beautiful thing and there’s so much to smile about. – Marilyn Monroe",
+        "The purpose of our lives is to be happy. – Dalai Lama",
+        "Turn your wounds into wisdom. – Oprah Winfrey",
+        "Life isn't about waiting for the storm to pass, but learning to dance in the rain. – Vivian Greene",
+        "To live is the rarest thing in the world. Most people exist, that is all. – Oscar Wilde",
+        "Life is either a daring adventure or nothing. – Helen Keller",
+        "You have within you right now, everything you need to deal with whatever the world can throw at you.",
+        "Life is what we make it, always has been, always will be. – Grandma Moses",
+        "Enjoy the little things in life, for one day you may look back and realize they were the big things. – Robert Breault",
+        "Sometimes the best things in life are unexpected.",
+        "Life is not measured by the number of breaths we take, but by the moments that take our breath away.",
+        "Happiness is not something you postpone for the future; it is something you design for the present. – Jim Rohn",
+        "You are never too old to set another goal or to dream a new dream. – C.S. Lewis",
+        "The biggest adventure you can take is to live the life of your dreams. – Oprah Winfrey",
+        "Do not go where the path may lead, go instead where there is no path and leave a trail. – Ralph Waldo Emerson",
+        "I think being in love with life is a key to eternal youth. – Doug Hutchison",
+        "To succeed in life, you need two things: ignorance and confidence. – Mark Twain",
+        "Your time is limited, don’t waste it living someone else’s life. – Steve Jobs",
+        "The best way to predict your future is to create it. – Abraham Lincoln",
+        "Heaven is under our feet as well as over our heads. – Henry David Thoreau",
+        "Time spent amongst trees is never wasted time. – Katrina Mayer",
+        "Just living is not enough… one must have sunshine, freedom, and a little flower. – Hans Christian Andersen",
+        "The earth has music for those who listen. – William Shakespeare",
+        "Nature is not a place to visit. It is home. – Gary Snyder"
+      ],
+      love: [
+        "Love is composed of a single soul inhabiting two bodies. – Aristotle",
+        "Where there is love there is life. – Mahatma Gandhi",
+        "We accept the love we think we deserve. – Stephen Chbosky",
+        "To love and be loved is to feel the sun from both sides. – David Viscott",
+        "Love recognizes no barriers. – Maya Angelou",
+        "Being deeply loved by someone gives you strength, while loving someone deeply gives you courage. – Lao Tzu",
+        "Love is the only force capable of transforming an enemy into a friend. – Martin Luther King Jr.",
+        "You know you're in love when you can't fall asleep because reality is finally better than your dreams. – Dr. Seuss",
+        "The best thing to hold onto in life is each other. – Audrey Hepburn",
+        "Love doesn't make the world go 'round. Love is what makes the ride worthwhile. – Franklin P. Jones",
+        "The greatest happiness of life is the conviction that we are loved. – Victor Hugo",
+        "Let us always meet each other with smile, for the smile is the beginning of love. – Mother Teresa",
+        "Love is the flower; you've got to let it grow. – John Lennon",
+        "Love cures people—both the ones who give it and the ones who receive it. – Karl A. Menninger",
+        "One word frees us of all the weight and pain of life: that word is love. – Sophocles",
+        "Love is when the other person's happiness is more important than your own. – H. Jackson Brown, Jr.",
+        "To love and be loved is to feel the sun from both sides. – David Viscott",
+        "I have decided to stick with love. Hate is too great a burden to bear. – Martin Luther King Jr.",
+        "You come to love not by finding the perfect person, but by seeing an imperfect person perfectly. – Sam Keen",
+        "Love is like the wind, you can't see it but you can feel it. – Nicholas Sparks",
+        "In the end we discover that to love and let go can be the same thing. – Jack Kornfield",
+        "The heart has its reasons which reason knows not. – Blaise Pascal",
+        "To love oneself is the beginning of a lifelong romance. – Oscar Wilde",
+        "There is always some madness in love. But there is also always some reason in madness. – Friedrich Nietzsche",
+        "Love is not only something you feel, it is something you do. – David Wilkerson"
+      ],
+      friendship: [
+        "Friendship is the only cement that will ever hold the world together. – Woodrow Wilson",
+        "A real friend is one who walks in when the rest of the world walks out. – Walter Winchell",
+        "Friendship doubles your joys and divides your sorrows. – Euripides",
+        "Friends are the family we choose. – Edna Buchanan",
+        "The greatest gift of life is friendship, and I have received it. – Hubert H. Humphrey",
+        "True friendship comes when the silence between two people is comfortable. – David Tyson",
+        "Friendship is born at that moment when one person says to another, 'What! You too? I thought I was the only one.' – C.S. Lewis",
+        "My best friend is the one who brings out the best in me. – Henry Ford",
+        "Growing apart doesn't change the fact that for a long time we grew side by side; our roots will always be tangled.",
+        "True friends are like diamonds—bright, beautiful, valuable, and always in style. – Nicole Richie",
+        "Walking with a friend in the dark is better than walking alone in the light. – Helen Keller",
+        "Friends show their love in times of trouble, not in happiness. – Euripides",
+        "In the cookie of life, friends are the chocolate chips.",
+        "Friendship is a sheltering tree. – Samuel Taylor Coleridge",
+        "A single rose can be my garden… a single friend, my world. – Leo Buscaglia",
+        "Each friend represents a world in us, a world possibly not born until they arrive. – Anais Nin",
+        "There is nothing on this earth more to be prized than true friendship. – Thomas Aquinas",
+        "A friend is someone who knows all about you and still loves you. – Elbert Hubbard",
+        "Friendship isn’t about whom you have known the longest. It’s about who came and never left your side.",
+        "True friends are never apart, maybe in distance but never in heart.",
+        "A true friend is the greatest of all blessings. – Francois de La Rochefoucauld",
+        "Friends are those rare people who ask how we are and then wait to hear the answer. – Ed Cunningham",
+        "A friend is one of the nicest things you can have, and one of the best things you can be. – Douglas Pagels",
+        "Friendship is the golden thread that ties the heart of all the world. – John Evelyn",
+        "Good friends are like stars. You don't always see them, but you know they're always there."
+      ],
+      happiness: [
+        "Happiness is not by chance, but by choice. – Jim Rohn",
+        "Be happy for this moment. This moment is your life. – Omar Khayyam",
+        "The purpose of our lives is to be happy. – Dalai Lama",
+        "Happiness depends upon ourselves. – Aristotle",
+        "For every minute you are angry you lose sixty seconds of happiness. – Ralph Waldo Emerson",
+        "Happiness is not something ready made. It comes from your own actions.",
+        "Most folks are as happy as they make up their minds to be. – Abraham Lincoln",
+        "Count your age by friends, not years. Count your life by smiles, not tears. – John Lennon",
+        "The best way to cheer yourself is to try to cheer someone else up. – Mark Twain",
+        "Happiness is only real when shared. – Jon Krakauer",
+        "If you want to be happy, be. – Leo Tolstoy",
+        "Thousands of candles can be lit from a single candle, and the life of the candle will not be shortened. Happiness never decreases by being shared. – Buddha",
+        "There is only one happiness in this life, to love and be loved. – George Sand",
+        "True happiness arises, in the first place, from the enjoyment of one's self. – Joseph Addison",
+        "Let us be grateful to people who make us happy, they are the charming gardeners who make our souls blossom. – Marcel Proust",
+        "Happiness is a direction, not a place. – Sydney J. Harris",
+        "Happiness is when what you think, what you say, and what you do are in harmony. – Mahatma Gandhi",
+        "The best way to pay for a lovely moment is to enjoy it. – Richard Bach",
+        "Happiness is not a goal; it is a by-product. – Eleanor Roosevelt",
+        "Happiness can exist only in acceptance. – George Orwell",
+        "Some pursue happiness, others create it.",
+        "Sometimes your joy is the source of your smile, but sometimes your smile can be the source of your joy. – Thich Nhat Hanh",
+        "Happiness is the secret to all beauty. There is no beauty without happiness. – Christian Dior",
+        "The power of finding beauty in the humblest things makes home happy and life lovely. – Louisa May Alcott",
+        "The art of being happy lies in the power of extracting happiness from common things. – Henry Ward Beecher"
+      ],
+      funny: [
+        "I'm not arguing, I'm just explaining why I'm right.",
+        "I'm on a seafood diet. I see food and I eat it.",
+        "Life is short. Smile while you still have teeth.",
+        "If at first you don’t succeed, then skydiving definitely isn’t for you.",
+        "I always arrive late at the office, but I make up for it by leaving early. – Charles Lamb",
+        "Behind every great man is a woman rolling her eyes. – Jim Carrey",
+        "I am so clever that sometimes I don't understand a single word of what I am saying. – Oscar Wilde",
+        "People say nothing is impossible, but I do nothing every day. – A.A. Milne",
+        "I used to think I was indecisive, but now I'm not too sure.",
+        "My wallet is like an onion, opening it makes me cry.",
+        "Why don’t scientists trust atoms? Because they make up everything.",
+        "A clear conscience is usually the sign of a bad memory.",
+        "Age is of no importance unless you’re a cheese.",
+        "You can’t have everything. Where would you put it? – Steven Wright",
+        "I'm writing a book. I've got the page numbers done. – Steven Wright",
+        "If you think nobody cares if you're alive, try missing a couple of payments. – Earl Wilson",
+        "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+        "Why don’t skeletons fight each other? They don’t have the guts.",
+        "I asked my dog what's two minus two. He said nothing.",
+        "Never trust math teachers who use graph paper. They’re always plotting something.",
+        "If you’re hotter than me, then that means I’m cooler than you.",
+        "My life feels like a test I didn’t study for.",
+        "I’m not lazy, I’m just very relaxed.",
+        "Common sense is like deodorant. The people who need it most never use it.",
+        "I'm on a whiskey diet. I've lost three days already. – Tommy Cooper"
+      ],
+      sad: [
+        "Tears come from the heart and not from the brain. – Leonardo da Vinci",
+        "It's sad when someone you know becomes someone you knew.",
+        "Sometimes, you just have to pretend that you're happy.",
+        "The worst kind of sad is not being able to explain why.",
+        "Every human walks around with a certain kind of sadness.",
+        "The walls we build around us to keep sadness out also keeps out the joy. – Jim Rohn",
+        "Heavy hearts, like heavy clouds in the sky, are best relieved by the letting of a little water. – Christopher Morley",
+        "Sadness flies away on the wings of time. – Jean de La Fontaine",
+        "Nothing can cure the soul but the senses, just as nothing can cure the senses but the soul. – Oscar Wilde",
+        "The tragedy of life is not so much what men suffer, but rather what they miss. – Thomas Carlyle",
+        "There's no greater pain than to recall a happy time when miserable. – Dante Alighieri",
+        "When you are happy, you enjoy the music. But when you are sad, you understand the lyrics.",
+        "Breathing is hard. When you cry so much, it makes you realize that breathing is hard. – David Levithan",
+        "People keep telling me that life goes on, but to me that’s the saddest part.",
+        "What's broken can be mended. What hurts can be healed. No matter how dark it gets, the sun is going to rise again.",
+        "Better by far you should forget and smile than that you should remember and be sad. – Christina Rossetti",
+        "Sad things happen. They do. But we don’t need to live sad forever. – Mattie Stepanek",
+        "Tears shed for another person are not a sign of weakness. They are a sign of a pure heart. – José N. Harris",
+        "Sometimes you have to know when to stop hoping.",
+        "Never make a decision when you are upset, sad, jealous or in love.",
+        "Sadness is but a wall between two gardens. – Kahlil Gibran",
+        "There is no disguise which can hide love for long where it exists, or simulate it where it does not.",
+        "The greatest pain that comes from love is loving someone you can never have.",
+        "To have felt too much is to end in feeling nothing.",
+        "Sometimes memories sneak out of my eyes and roll down my cheeks."
+      ],
+      wisdom: [
+        "Knowing yourself is the beginning of all wisdom. – Aristotle",
+        "Turn your wounds into wisdom. – Oprah Winfrey",
+        "Honesty is the first chapter in the book of wisdom. – Thomas Jefferson",
+        "The only true wisdom is in knowing you know nothing. – Socrates",
+        "Wisdom is not a product of schooling but of the lifelong attempt to acquire it. – Albert Einstein",
+        "Patience is the companion of wisdom. – St. Augustine",
+        "Wisdom begins in wonder. – Socrates",
+        "Do not take life too seriously. You will never get out of it alive. – Elbert Hubbard",
+        "The wise man does at once what the fool does finally. – Niccolo Machiavelli",
+        "He who learns but does not think, is lost! He who thinks but does not learn is in great danger. – Confucius",
+        "Knowledge speaks, but wisdom listens. – Jimi Hendrix",
+        "To acquire knowledge, one must study; but to acquire wisdom, one must observe. – Marilyn vos Savant",
+        "Wisdom comes from experience. Experience is often a result of lack of wisdom. – Terry Pratchett",
+        "It is the mark of an educated mind to be able to entertain a thought without accepting it.",
+        "Wisdom is the reward you get for a lifetime of listening when you'd have preferred to talk. – Doug Larson",
+        "A wise man can learn more from a foolish question than a fool can learn from a wise answer. – Bruce Lee",
+        "Wise men speak because they have something to say; fools because they have to say something. – Plato",
+        "The simple things are also the most extraordinary things, and only the wise can see them.",
+        "Wisdom is knowing the right path to take. Integrity is taking it.",
+        "To know when to be generous and when firm—that is wisdom.",
+        "Wisdom is oftentimes nearer when we stoop than when we soar. – William Wordsworth",
+        "The clearest way into the Universe is through a forest wilderness. – John Muir",
+        "Look deep into nature, and then you will understand everything better. – Albert Einstein",
+        "Adopt the pace of nature: her secret is patience. – Ralph Waldo Emerson",
+        "The goal of life is living in agreement with nature. – Zeno",
+        "It is not what we do, but also what we do not do, for which we are accountable. – Moliere",
+        "Only the wise know just where predestination ends and free will begins.",
+        "Nine-tenths of wisdom is being wise in time. – Theodore Roosevelt",
+        "He who knows others is wise; he who knows himself is enlightened. – Lao Tzu"
+      ],
+      strength: [
+        "Strength does not come from the physical capacity. It comes from an indomitable will. – Mahatma Gandhi",
+        "That which does not kill us makes us stronger. – Friedrich Nietzsche",
+        "You never know how strong you are until being strong is your only choice. – Bob Marley",
+        "The world breaks everyone, and afterward, some are strong at the broken places. – Ernest Hemingway",
+        "Out of difficulties grow miracles. – Jean de La Bruyère",
+        "Our greatest glory is not in never falling, but in rising every time we fall. – Confucius",
+        "Strength doesn't come from what you can do. It comes from overcoming the things you once thought you couldn't.",
+        "With the new day comes new strength and new thoughts. – Eleanor Roosevelt",
+        "When you come out of the storm, you won’t be the same person who walked in.",
+        "Difficulties are meant to rouse, not discourage. The human spirit is to grow strong by conflict. – William Ellery Channing",
+        "Sometimes you don’t realize your own strength until you come face to face with your greatest weakness.",
+        "Where there is no struggle, there is no strength. – Oprah Winfrey",
+        "Some of us think holding on makes us strong, but sometimes it is letting go. – Hermann Hesse",
+        "Be strong, things will get better. It might be stormy now, but rain doesn’t last forever.",
+        "We are only as strong as we are united, as weak as we are divided. – J.K. Rowling",
+        "Strength grows in the moments when you think you can’t go on but you keep going anyway.",
+        "He who conquers others is strong; he who conquers himself is mighty. – Lao Tzu",
+        "A hero is an ordinary individual who finds the strength to persevere and endure in spite of overwhelming obstacles. – Christopher Reeve",
+        "You have power over your mind—not outside events. Realize this, and you will find strength. – Marcus Aurelius",
+        "It does not matter how slowly you go so long as you do not stop. – Confucius",
+        "No one saves us but ourselves. No one can and no one may. We ourselves must walk the path. – Buddha",
+        "Sometimes you have to get knocked down lower than you have ever been to stand back up taller than you ever were.",
+        "Calm mind brings inner strength and self-confidence. – Dalai Lama",
+        "If you’re going through hell, keep going. – Winston Churchill",
+        "When we are no longer able to change a situation, we are challenged to change ourselves. – Viktor Frankl"
+      ],
+      music: [
+        "Where words fail, music speaks. – Hans Christian Andersen",
+        "Music is the shorthand of emotion. – Leo Tolstoy",
+        "Music gives a soul to the universe, wings to the mind. – Plato",
+        "Life is a song, love is the music.",
+        "Music expresses that which cannot be put into words and that which cannot remain silent. – Victor Hugo",
+        "One good thing about music, when it hits you, you feel no pain. – Bob Marley",
+        "Without music, life would be a mistake. – Friedrich Nietzsche",
+        "Music can change the world because it can change people. – Bono",
+        "To stop the flow of music would be like the stopping of time itself, incredible and inconceivable. – Aaron Copland",
+        "Music is the strongest form of magic. – Marilyn Manson",
+        "Music washes away from the soul the dust of everyday life. – Berthold Auerbach",
+        "Music is the moonlight in the gloomy night of life. – Jean Paul",
+        "Where words leave off, music begins. – Heinrich Heine",
+        "Some people have lives; some people have music. – John Green",
+        "Music is the art which is most nigh to tears and memory. – Oscar Wilde",
+        "After silence, that which comes nearest to expressing the inexpressible is music. – Aldous Huxley",
+        "If music be the food of love, play on. – William Shakespeare",
+        "Music is the divine way to tell beautiful, poetic things to the heart. – Pablo Casals",
+        "Music is life itself. – Louis Armstrong",
+        "Music is the literature of the heart; it commences where speech ends. – Alphonse de Lamartine",
+        "My music fights against the system that teaches to live and die. – Bob Marley",
+        "The only truth is music. – Jack Kerouac",
+        "Music brings people together. – Roy Ayers",
+        "Pop music is aspirin and the blues are vitamins. – Peter Tork",
+        "A painter paints pictures on canvas. But musicians paint their pictures on silence. – Leopold Stokowski"
+      ]
+    };
+
+    let currentQuote = '';
+
+    function showCategory(category) {
+      const quoteContainer = document.getElementById('quoteContainer');
+      const quote = quotes[category][Math.floor(Math.random() * quotes[category].length)];
+      currentQuote = quote;
+      quoteContainer.innerHTML = `
+        <div class="quote-box">
+          <p id="quoteText">"${quote}"</p>
+          <div class="tag">#${category}</div>
+        </div>
+      `;
+    }
+
+    function randomQuote() {
+      const categories = Object.keys(quotes);
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      showCategory(category);
+    }
+
+    function copyQuote() {
+      if (!currentQuote) return alert('No quote to copy!');
+      navigator.clipboard.writeText(currentQuote);
+      alert('Quote copied!');
+    }
+
+    function shareQuote() {
+      if (!currentQuote) return alert('No quote to share!');
+      if (navigator.share) {
+        navigator.share({ text: currentQuote });
+      } else {
+        alert('Sharing not supported. Please copy instead.');
+      }
+    }
+
+    function toggleDarkMode() {
+      const body = document.body;
+      const icon = document.getElementById('modeIcon');
+      body.classList.toggle('dark-mode');
+      icon.setAttribute('data-lucide', body.classList.contains('dark-mode') ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+
+    window.onload = () => {
+      lucide.createIcons();
+    };
+  </script>
+</body>
+</html>
